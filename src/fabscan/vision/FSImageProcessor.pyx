@@ -9,6 +9,13 @@ import logging, os
 import numpy as np
 import cv2
 
+
+# cython optimisation
+cimport numpy as np
+
+DTYPE = np.int
+ctypedef np.int_t DTYPE_t
+
 class FSPoint():
     def __init__(self, x=0.0, y=0.0, z=0.0):
         self.x = x

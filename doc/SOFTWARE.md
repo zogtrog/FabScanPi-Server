@@ -60,7 +60,7 @@ fabscan repository to your apt source list.
 Install dependencies
 
 ```
-sudo apt-get install build-essential dpkg-dev debhelper devscripts fakeroot cdbs python-setuptools python-support
+sudo apt-get install build-essential dpkg-dev debhelper devscripts fakeroot cdbs python-setuptools python-support python-cython
 ```
 
 The package is build by calling

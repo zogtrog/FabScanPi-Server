@@ -5,6 +5,7 @@ __maintainer__ = "Mario Lukas"
 __email__ = "info@mariolukas.de"
 from distutils.core import setup
 from setuptools import find_packages
+from Cython.Build import cythonize
 import os
 import sys
 import subprocess
@@ -87,6 +88,7 @@ def params():
         "": "src"
     }
 
+    ext_modules = cythonize("src/fabscan/vision/FSImageProcessor.pyx")
 
     include_package_data = True
     zip_safe = False
