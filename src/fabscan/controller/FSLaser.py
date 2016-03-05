@@ -30,6 +30,5 @@ class Laser:
             self.serial_connection.wait()
 
     def step(self, steps, speed):
-
         self.serial_connection.send("G04 L"+str(steps)+" F"+str(speed)+";\n")
         self.serial_connection.wait()

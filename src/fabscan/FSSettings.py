@@ -47,6 +47,7 @@ class Settings(SingletonMixin):
         self.camera.contrast = settings.camera.contrast
         self.camera.saturation = settings.camera.saturation
         self.resolution = settings.resolution
+        self.laser_positions = settings.laser_positions
         self.color = settings.color
         self.led.blue = settings.led.blue
         self.led.green = settings.led.green
