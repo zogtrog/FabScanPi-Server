@@ -9,6 +9,7 @@ PROJECT=fabscanpi-server
 all:
 	@echo "make source - Create source package"
 	@echo "make install - Install on local system"
+	@echo "make build_ext - Build Cython Opimized Python code parts"
 	@echo "make rpm - Generate a rpm package"
 	@echo "make deb - Generate a deb package"
 	@echo "make clean - Get rid of scratch and byte files"
@@ -18,6 +19,10 @@ source:
 
 install:
 	$(PYTHON) setup.py install --root $(DESTDIR) $(COMPILE)
+
+build_ext:
+    rm src/fabscan/vision/FSImageProcessor.so
+    $(PYTHON) setup.py build_ext --inplace
 
 rpm:
 	$(PYTHON) setup.py bdist_rpm --post-install=rpm/postinstall --pre-uninstall=rpm/preuninstall

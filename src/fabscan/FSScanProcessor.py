@@ -58,7 +58,7 @@ class FSScanProcessor(pykka.ThreadingActor):
         self.hardwareController = HardwareController.instance()
         self.eventManager.subscribe(FSEvents.ON_IMAGE_PROCESSED, self.image_processed)
         self._scan_brightness = self.settings.camera.brightness
-        self._scan_contrast =  self.settings.camera.contrast
+        self._scan_contrast = self.settings.camera.contrast
         self._scan_saturation = self.settings.camera.saturation
 
 
@@ -182,7 +182,7 @@ class FSScanProcessor(pykka.ThreadingActor):
         if self._current_laser_position == 1:
             self._laser_angle = self.image_processor.calculate_laser_angle(self.hardwareController.camera.device.getStream())
         else:
-            self._laser_angle = self._laser_angle + ((360/3200)*25)
+            self._laser_angle = self._laser_angle + ((360/3200)*self.config.laser.rotation_steps)
             #self._logger.debug("Calculated laser Angle is: "+str(self._laser_angle))
 
         if self._laser_angle == None:
@@ -227,7 +227,7 @@ class FSScanProcessor(pykka.ThreadingActor):
             elif self._current_laser_position <= self.settings.laser_positions:
                 self.current_position = 0
                 self._current_laser_position +=1;
-                self.hardwareController.laser.step(-25, 100)
+                self.hardwareController.laser.step(self.config.laser.rotation_steps, 100)
 
                 message = FSUtil.new_message()
                 message['type'] = FSEvents.ON_INFO_MESSAGE
@@ -355,7 +355,7 @@ class FSScanProcessor(pykka.ThreadingActor):
     def reset_scanner_state(self):
         self._logger.info("Reseting scanner states ... ")
         if self.settings.laser_positions > 1:
-            self.hardwareController.laser.step(self.config.rotation_steps*self.settings.laser_positions, 100)
+            self.hardwareController.laser.step(-self.config.rotation_steps*self.settings.laser_positions, 100)
         self.hardwareController.camera.device.objectExposure()
         self.hardwareController.camera.device.flushStream()
         self.hardwareController.laser.off()

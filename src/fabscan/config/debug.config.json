@@ -34,7 +34,7 @@
         "z": 24.5
       },
       "angle": 33.0,
-      "rotation_steps": 5,
+      "rotation_steps": 3,
       "steps": 3200
    },
    "turntable":{

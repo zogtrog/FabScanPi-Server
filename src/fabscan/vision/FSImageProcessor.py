@@ -9,6 +9,7 @@ import logging, os
 import numpy as np
 import cv2
 
+
 class FSPoint():
     def __init__(self, x=0.0, y=0.0, z=0.0):
         self.x = x
@@ -36,10 +37,10 @@ class ImageProcessor():
 
     def get_preview_image(self, cam_image, type='CAMERA'):
 
-        x_center = cam_image.shape[1] * self.settings.center
-        x_center_delta = cam_image.shape[1] * 0.5 - x_center
+        #x_center = cam_image.shape[1] * self.settings.center
+        #x_center_delta = cam_image.shape[1] * 0.5 - x_center
 
-        sub_pixel, cam_image = self.line_coords(cam_image,filter=True, fast=False ,x_center_delta=x_center_delta) #np.argmax(line[ 0: width])
+        #sub_pixel, cam_image = self.line_coords(cam_image,filter=True, fast=False ,x_center_delta=x_center_delta) #np.argmax(line[ 0: width])
 
         cv2.line(cam_image, (0,int(self.config.scanner.origin.y*cam_image.shape[0])), (cam_image.shape[1],int(0.75*cam_image.shape[0])), (0,255,0), thickness=1, lineType=8, shift=0)
         cv2.line(cam_image, (int(0.5*cam_image.shape[1]),0), (int(0.5*cam_image.shape[1]), cam_image.shape[0]), (0,255,0), thickness=1, lineType=8, shift=0)
@@ -137,12 +138,17 @@ class ImageProcessor():
                 return None
 
     def get_grey(self, image):
-        hsv_img = cv2.cvtColor(image, cv2.cv.CV_BGR2HSV)
-        h, s, v = cv2.split(hsv_img)
-        height, width, channels = image.shape
+        #hsv_img = cv2.cvtColor(image, cv2.cv.CV_BGR2HSV)
+        #h, s, v = cv2.split(hsv_img)
+        #height, width, channels = image.shape
+        b,g,r  = cv2.split(image)
+        blur = cv2.GaussianBlur(r,(11,11),0)
+        open_value = 2
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (open_value, open_value))
+        image_open = cv2.morphologyEx(blur, cv2.MORPH_OPEN, kernel)
+        tres =cv2.threshold(image_open, self.settings.threshold, 255.0, cv2.THRESH_TOZERO)[1]
 
-        blur = cv2.GaussianBlur(v,(11,11),0)
-        return blur
+        return tres
 
 
     def line_coords(self, image,  filter=True, fast=False, x_center_delta=None):
