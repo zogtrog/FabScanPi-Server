@@ -11,7 +11,7 @@ import traceback
 import sys
 import time
 import logging
-import subprocess
+from fabscan.util.FSUtil import FSSystem
 
 from fabscan.FSConfig import Config
 
@@ -27,6 +27,7 @@ class FSSerialCom():
         self._baudrate = self.config.serial.baudrate
         self._serial = None
         self._connected = False
+        self._firmware_version = None
         self._openSerial()
 
 
@@ -46,11 +47,10 @@ class FSSerialCom():
 
 
     def avr_flash(self,fname):
-        status = subprocess.call(["wc -l %s" % (fname)], shell=True)
-        status = subprocess.call(["avrdude -U flash:w:%s:i -p atmega328 -b 115200 -carduino -patmega328p -P%s" % (fname,self._port)], shell=True, stdout=subprocess.PIPE)
+        FSSystem.run_command("wc -l "+str(fname))
+        status = FSSystem.run_command("avrdude -U flash:w:"+str(fname)+":i -p atmega328 -b 115200 -carduino -patmega328p -P"+str(self._port))
         if status != 0:
             self._logger.error("Failed to flash firmware")
-
         return status == 0
 
 
@@ -101,6 +101,7 @@ class FSSerialCom():
 
            if self._serial.isOpen() and (current_version != "None"):
               self._logger.info("FabScanPi is connected to Arduino or FabScanPi HAT on port: "+str(self._port))
+              self._firmware_version = current_version
               self._connected = True
            else:
               self._logger.error("Can not find Arduino or FabScanPi HAT")
@@ -152,3 +153,5 @@ class FSSerialCom():
     def is_connected(self):
         return self._connected
 
+    def get_firmware_version(self):
+        return self._firmware_version

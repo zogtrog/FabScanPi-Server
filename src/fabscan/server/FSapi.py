@@ -16,6 +16,24 @@ class FSapi():
     def __init__(self):
         self.config = Config.instance()
 
+    def get_list_of_meshlab_filters(self):
+        basedir = os.path.dirname(os.path.dirname(__file__))
+
+        filters = dict()
+        filters['filters'] = []
+        for file in os.listdir(basedir+"/mlx"):
+            if file.endswith(".mlx"):
+                if os.path.os.path.exists(basedir+"/mlx/"+file):
+                    filter = dict()
+                    name, extension = os.path.splitext(file)
+
+                    filter['name'] = name
+                    filter['file_name'] = file
+
+                    filters['filters'].append(filter)
+
+        encoded_json = json.dumps(filters)
+        return encoded_json
 
     def get_list_of_scans(self, headers):
         basedir = self.config.folders.scans
@@ -26,11 +44,10 @@ class FSapi():
 
         for dir in subdirectories:
             if dir != "debug":
-                pointcloud_file = str("http://"+headers['host']+"/scans/"+dir+"/"+dir+".ply")
-                if os.path.os.path.exists(basedir+dir+"/"+dir+".ply"):
+                if os.path.os.path.exists(basedir+dir+"/scan_"+dir+".ply"):
                     scan = dict()
                     scan['id'] = str(dir)
-                    scan['pointcloud'] =  str("http://"+headers['host']+"/scans/"+dir+"/"+dir+".ply")
+                    scan['pointcloud'] =  str("http://"+headers['host']+"/scans/"+dir+"/scan_"+dir+".ply")
                     scan['thumbnail'] = str("http://"+headers['host']+"/scans/"+dir+"/thumbnail_"+dir+".png")
                     scans['scans'].append(scan)
 
@@ -44,17 +61,29 @@ class FSapi():
         scan = dict()
         scan['id'] = id
 
-        pointcloud_file = str("http://"+headers['host']+"/scans/"+id+"/"+id+".ply")
-        if os.path.exists(basedir+id+"/"+id+".ply"):
-            scan['pointcloud'] = pointcloud_file
+        raw_scan_list = []
+        mesh_list = []
+
+        for file in os.listdir(basedir+"/"+id):
+            prefix = file.split("_")[0]
+            if 'scan' in prefix:
+                raw_scan = dict()
+                raw_scan['name'] = file
+                raw_scan['url'] = str("http://"+headers['host']+"/scans/"+id+"/"+file)
+                raw_scan_list.append(raw_scan)
+
+            elif 'mesh' in prefix:
+                mesh = dict()
+                mesh['name'] = file
+                mesh['url'] = str("http://"+headers['host']+"/scans/"+id+"/"+file)
+                mesh_list.append(mesh)
+
+        scan['raw_scans'] = raw_scan_list
+        scan['meshes'] = mesh_list
 
         thumbnail_file = str("http://"+headers['host']+"/scans/"+id+"/thumbnail_"+id+".png")
         if os.path.exists(basedir+id+"/thumbnail_"+id+".png"):
             scan['thumbnail'] = thumbnail_file
-
-        mesh_file = str("http://"+headers['host']+"/scans/"+id+"/"+id+".stl")
-        if os.path.exists(basedir+id+"/"+id+".stl"):
-            scan['mesh'] = mesh_file
 
         settings_file = str("http://"+headers['host']+"/scans/"+id+"/"+id+".fab")
         if os.path.exists(basedir+id+"/"+id+".fab"):
